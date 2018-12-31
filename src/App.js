@@ -14,30 +14,38 @@ class App extends Component {
     this.createCanvas();
   }
   createCanvas() {
-    let camera, scene, renderer;
+    let camera, scene, renderer, camControls;
     let firstPick;
     const domNode = this.myRef;
     let allToothpicks = [];
     let newGen = [];
     let nextGen = [];
-    const totalGenerations = 20;
+    const totalGenerations = 52;
 
     init();
-    animate();
+    // setTimeout(() => {
+      animate();
+      camControls = new OrbitControls(camera, renderer.domElement);
+      // camControls.autoRotate = true;
+      camControls.enablePan = false;
+      camControls.minDistance = 25;
+      camControls.maxDistance = 1000;
+    // }, 0);
 
     function init() {
  
-      camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 1000 );
+      camera = new THREE.PerspectiveCamera( 70, window.innerWidth / window.innerHeight, 0.01, 5000 );
       // camera = new THREE.OrthographicCamera( window.innerWidth / - 2, window.innerWidth / 2, window.innerHeight / 2, window.innerHeight / - 2, 1, 1000 );
-      camera.position.z = 500;
+      camera.position.z = 100;
       // camera.position.x = 500;
       
       scene = new THREE.Scene();
       
-      renderer = new THREE.WebGLRenderer( { antialias: true } );
+      renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
       renderer.setSize( window.innerWidth, window.innerHeight );
+      renderer.setClearColor(0xffffff, 1);
       domNode.current.appendChild( renderer.domElement );
-      new OrbitControls(camera, renderer.domElement);
+      // new OrbitControls(camera, renderer.domElement);
 
       var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
       directionalLight.position.x = 10;
@@ -68,11 +76,24 @@ class App extends Component {
         newGen = nextGen.slice();
       }
       allToothpicks = allToothpicks.concat(nextGen);
+      console.log(allToothpicks.length);
 
       // const nextTest = new Toothpick(new THREE.Vector3(0,32,0), 1);
       // console.log(testPick);
       // nextTest.addToScene(scene);
+      renderer.render( scene, camera );
     }
+
+    function onWindowResize() {
+      // camera.left = window.innerWidth / - 2;
+      // camera.right = window.innerWidth / 2;
+      // camera.top = window.innerHeight / 2;
+      // camera.bottom = window.innerHeight / - 2;
+      camera.aspect = window.innerWidth / window.innerHeight;
+      camera.updateProjectionMatrix();
+      
+      renderer.setSize(window.innerWidth, window.innerHeight);
+    };
    
     function animate() {
     
@@ -80,19 +101,40 @@ class App extends Component {
         for(let i = 0; i < allToothpicks.length; i++) {
           // allToothpicks[i].mesh.rotation.z += 0.01 + i * 0.0001;
           if (allToothpicks[i].zRotation > 0) {
-            allToothpicks[i].mesh.rotation.y += 0.01 + i * 0.0001;
+            allToothpicks[i].mesh.rotation.y += 0.01;
+            // allToothpicks[i].mesh.rotation.y += 0.01 + i * 0.0001;
           } else {
-            allToothpicks[i].mesh.rotation.x += 0.01 + i * 0.0001;
+            allToothpicks[i].mesh.rotation.x += 0.01;
+            // allToothpicks[i].mesh.rotation.x += 0.01 + i * 0.0001;
           }
         }
+        if (camControls) {
+          camControls.update();
+        }
+
         // console.log(allToothpicks);
         renderer.render( scene, camera );
     
     }
+
+    window.addEventListener('resize', onWindowResize, true);
+  }
+
+  makeFullscreen() {
+    // const elem = document.body;
+    // if (elem.requestFullscreen) {
+    //   elem.requestFullscreen();
+    // } else if (elem.mozRequestFullScreen) { /* Firefox */
+    //   elem.mozRequestFullScreen();
+    // } else if (elem.webkitRequestFullscreen) { /* Chrome, Safari and Opera */
+    //   elem.webkitRequestFullscreen();
+    // } else if (elem.msRequestFullscreen) { /* IE/Edge */
+    //   elem.msRequestFullscreen();
+    // }
   }
   render() {
     return (
-      <div ref={this.myRef}>
+      <div onClick={this.makeFullscreen.bind(this)} ref={this.myRef}>
       </div>
     );
   }

@@ -1,22 +1,28 @@
 import * as THREE from 'three';
 
 const lenght = 32;
+const width = 1;
 
 class Toothpick {
   constructor(vectorPosition = new THREE.Vector3(0 ,0 , 0), zRotation = 0) {
-    this.geometry = new THREE.CylinderBufferGeometry( 1, 1, lenght, 32 );
+    this.geometry = new THREE.CylinderBufferGeometry( width, width, lenght, 32 );
     // this.material = new THREE.MeshPhongMaterial( {color: new THREE.Color( Math.random(), Math.random(), Math.random() )} );
-    this.material = new THREE.MeshBasicMaterial( {color: new THREE.Color( Math.random(), Math.random(), Math.random() )} );
+    this.material = new THREE.MeshBasicMaterial( {
+      color: new THREE.Color(`hsl(${Math.random() * 360}, 100%, 50%)`),
+      opacity: 0.5,
+      transparent: true
+      // wireframe: true
+    } );
     this.mesh = new THREE.Mesh( this.geometry, this.material );
     this.mesh.position.add(vectorPosition);
     this.zRotation = zRotation;
     if (zRotation > 0) {
       this.mesh.rotateZ(Math.PI / 2);
-      this.pointA = vectorPosition.clone().sub(new THREE.Vector3(- lenght / 2, 0, 0));
-      this.pointB = vectorPosition.clone().sub(new THREE.Vector3(lenght / 2, 0, 0));
+      this.pointA = vectorPosition.clone().sub(new THREE.Vector3(- lenght / 2 - width , 0, 0));
+      this.pointB = vectorPosition.clone().sub(new THREE.Vector3(lenght / 2 + width, 0, 0));
     } else {
-      this.pointA = vectorPosition.clone().sub(new THREE.Vector3(0, - lenght / 2, 0));
-      this.pointB = vectorPosition.clone().sub(new THREE.Vector3(0, lenght / 2, 0));
+      this.pointA = vectorPosition.clone().sub(new THREE.Vector3(0, - lenght / 2 - width, 0));
+      this.pointB = vectorPosition.clone().sub(new THREE.Vector3(0, lenght / 2 + width, 0));
     }
   }
   addToScene(scene) {

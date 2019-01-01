@@ -6,13 +6,18 @@ const width = 1;
 class Toothpick {
   constructor(vectorPosition = new THREE.Vector3(0 ,0 , 0), zRotation = 0) {
     this.geometry = new THREE.CylinderBufferGeometry( width, width, lenght, 32 );
-    // this.material = new THREE.MeshPhongMaterial( {color: new THREE.Color( Math.random(), Math.random(), Math.random() )} );
+    // console.log(vectorPosition.length());
     this.material = new THREE.MeshBasicMaterial( {
-      color: new THREE.Color(`hsl(${Math.random() * 360}, 100%, 50%)`),
-      opacity: 0.5,
+      color: new THREE.Color( `hsl(${mapIt(vectorPosition.length(), 0, 720, 0, 360)}, 100%, 50%)` ),
+      opacity: 0.75,
       transparent: true
-      // wireframe: true
     } );
+    // this.material = new THREE.MeshBasicMaterial( {
+    //   color: new THREE.Color(`hsl(${Math.random() * 360}, 100%, 0%)`),
+    //   opacity: 1,
+    //   transparent: true
+    //   // wireframe: true
+    // } );
     this.mesh = new THREE.Mesh( this.geometry, this.material );
     this.mesh.position.add(vectorPosition);
     this.zRotation = zRotation;
@@ -23,6 +28,8 @@ class Toothpick {
     } else {
       this.pointA = vectorPosition.clone().sub(new THREE.Vector3(0, - lenght / 2 - width, 0));
       this.pointB = vectorPosition.clone().sub(new THREE.Vector3(0, lenght / 2 + width, 0));
+      // this.pointA = vectorPosition.clone().sub(new THREE.Vector3(0, 0, - lenght / 2 - width));
+      // this.pointB = vectorPosition.clone().sub(new THREE.Vector3(0, 0, lenght / 2 + width));
     }
   }
   addToScene(scene) {
@@ -63,6 +70,18 @@ class Toothpick {
     } else {
       return null;
     }
+  }
+}
+
+function mapIt(n, start1, stop1, start2, stop2, withinBounds) {
+  var newval = (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+  if (!withinBounds) {
+    return newval;
+  }
+  if (start2 < stop2) {
+    return this.constrain(newval, start2, stop2);
+  } else {
+    return this.constrain(newval, stop2, start2);
   }
 }
 

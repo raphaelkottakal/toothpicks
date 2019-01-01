@@ -13,6 +13,7 @@ class App extends Component {
   componentDidMount() {
     this.createCanvas();
   }
+
   createCanvas() {
     let camera, scene, renderer, camControls;
     let firstPick;
@@ -29,7 +30,7 @@ class App extends Component {
       // camControls.autoRotate = true;
       camControls.enablePan = false;
       camControls.minDistance = 25;
-      camControls.maxDistance = 1000;
+      camControls.maxDistance = 2000;
     // }, 0);
 
     function init() {
@@ -41,21 +42,19 @@ class App extends Component {
       
       scene = new THREE.Scene();
       
-      renderer = new THREE.WebGLRenderer( { antialias: true, alpha: true } );
+      renderer = new THREE.WebGLRenderer( { antialias: true } );
       renderer.setSize( window.innerWidth, window.innerHeight );
-      renderer.setClearColor(0xffffff, 1);
+      // renderer.setClearColor(0xffffff, 1);
       domNode.current.appendChild( renderer.domElement );
       // new OrbitControls(camera, renderer.domElement);
 
-      var directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
-      directionalLight.position.x = 10;
-      directionalLight.position.y = 10;
-      directionalLight.position.z = 10;
-      // scene.add( directionalLight );
+      var light = new THREE.HemisphereLight( 0xffffbb, 0x080820, 1 );
+      scene.add( light );
       
       firstPick = new Toothpick(new THREE.Vector3(0,0,0), -1);
       newGen.push(firstPick);
       firstPick.addToScene(scene);
+
 
       for(let i = 0; i < totalGenerations; i++) {
         nextGen = [];
@@ -94,17 +93,30 @@ class App extends Component {
       
       renderer.setSize(window.innerWidth, window.innerHeight);
     };
+
+    function mapIt(n, start1, stop1, start2, stop2, withinBounds) {
+      var newval = (n - start1) / (stop1 - start1) * (stop2 - start2) + start2;
+      if (!withinBounds) {
+        return newval;
+      }
+      if (start2 < stop2) {
+        return this.constrain(newval, start2, stop2);
+      } else {
+        return this.constrain(newval, stop2, start2);
+      }
+    }
    
     function animate() {
     
         requestAnimationFrame( animate );
         for(let i = 0; i < allToothpicks.length; i++) {
           // allToothpicks[i].mesh.rotation.z += 0.01 + i * 0.0001;
+          const distanceToOrigin = allToothpicks[i].mesh.position.length();
           if (allToothpicks[i].zRotation > 0) {
-            allToothpicks[i].mesh.rotation.y += 0.01;
+            allToothpicks[i].mesh.rotation.y += mapIt(distanceToOrigin, 0, allToothpicks[allToothpicks.length - 1].mesh.position.length(), 0.01, 0.05);
             // allToothpicks[i].mesh.rotation.y += 0.01 + i * 0.0001;
           } else {
-            allToothpicks[i].mesh.rotation.x += 0.01;
+            allToothpicks[i].mesh.rotation.x -= mapIt(distanceToOrigin, 0, allToothpicks[allToothpicks.length - 1].mesh.position.length(), 0.01, 0.05);
             // allToothpicks[i].mesh.rotation.x += 0.01 + i * 0.0001;
           }
         }
